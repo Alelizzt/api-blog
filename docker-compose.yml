@@ -1,0 +1,16 @@
+services:
+    mysql:
+        image: mysql:latest
+        container_name: mysql-blog-server
+        environment:
+            MYSQL_DATABASE: blog_system
+            MYSQL_ROOT_PASSWORD: SuperS4f3P455WoRd
+            MYSQL_USER: adminBlog
+            MYSQL_PASSWORD: Adm1nBl0gP4Zzw0Rd
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql-data:/var/lib/mysql
+
+volumes:
+    mysql-data:

@@ -1,11 +1,16 @@
 package com.system.blog.dto;
 
+import java.util.Set;
+
+import com.system.blog.model.Comment;
+
 public class PostDto {
 
-	private long id;
+	private Long id;
 	private String title;
 	private String description;
 	private String content;
+	private Set<Comment> comments;
 
 	public PostDto() {
 		super();
@@ -49,6 +54,14 @@ public class PostDto {
 
 	public void setContent(String content) {
 		this.content = content;
+	}
+
+	public Set<Comment> getComments() {
+		return comments;
+	}
+
+	public void setComments(Set<Comment> comments) {
+		this.comments = comments;
 	}
 
 }

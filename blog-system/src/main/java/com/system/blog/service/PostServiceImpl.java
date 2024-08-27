@@ -3,6 +3,7 @@ package com.system.blog.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,9 @@ import com.system.blog.repository.PostRepository;
 public class PostServiceImpl implements PostService {
 
 	@Autowired
+	private ModelMapper modelMapper;
+
+	@Autowired
 	private PostRepository postRepository;
 
 	@Override
@@ -34,13 +38,14 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public PostResponse getAllPosts(int pageNumber, int pageSize, String sortBy, String sortDir) {
-		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())?Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending()
+				: Sort.by(sortBy).descending();
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 		Page<Post> posts = postRepository.findAll(pageable);
-		
+
 		List<Post> postsList = posts.getContent();
 		List<PostDto> content = postsList.stream().map(post -> mapDto(post)).collect(Collectors.toList());
-		
+
 		PostResponse postResponse = new PostResponse();
 		postResponse.setContent(content);
 		postResponse.setPageNumber(posts.getNumber());
@@ -48,31 +53,9 @@ public class PostServiceImpl implements PostService {
 		postResponse.setTotalElements(posts.getTotalElements());
 		postResponse.setTotalPages(posts.getTotalPages());
 		postResponse.setLast(posts.isLast());
-		
+
 		return postResponse;
-		
-	}
 
-	// Convierte la entidad a DTO
-	private PostDto mapDto(Post post) {
-		PostDto postDto = new PostDto();
-		postDto.setId(post.getId());
-		postDto.setTitle(post.getTitle());
-		postDto.setDescription(post.getDescription());
-		postDto.setContent(post.getContent());
-
-		return postDto;
-	}
-
-	// Convierte el DTO a Entidad
-	private Post mapEntity(PostDto postDto) {
-		Post post = new Post();
-		post.setId(postDto.getId());
-		post.setTitle(postDto.getTitle());
-		post.setDescription(postDto.getDescription());
-		post.setContent(postDto.getContent());
-
-		return post;
 	}
 
 	@Override
@@ -100,4 +83,15 @@ public class PostServiceImpl implements PostService {
 		postRepository.delete(post);
 	}
 
+	// Convierte la entidad a DTO
+	private PostDto mapDto(Post post) {
+		PostDto postDto = modelMapper.map(post, PostDto.class);
+		return postDto;
+	}
+
+	// Convierte el DTO a Entidad
+	private Post mapEntity(PostDto postDto) {
+		Post post = modelMapper.map(postDto, Post.class);
+		return post;
+	}
 }

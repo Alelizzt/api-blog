@@ -3,6 +3,7 @@ package com.system.blog.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,9 @@ import com.system.blog.repository.PostRepository;
 public class CommentServiceImpl implements CommentService {
 
 	@Autowired
+	private ModelMapper modelMapper;
+
+	@Autowired
 	private CommentRepository commentRepository;
 
 	@Autowired
@@ -33,26 +37,6 @@ public class CommentServiceImpl implements CommentService {
 		comment.setPost(post);
 		Comment newComment = commentRepository.save(comment);
 		return mapDto(newComment);
-	}
-
-	private CommentDto mapDto(Comment comment) {
-		CommentDto commentDto = new CommentDto();
-		commentDto.setId(comment.getId());
-		commentDto.setName(comment.getName());
-		commentDto.setEmail(comment.getEmail());
-		commentDto.setBody(comment.getBody());
-
-		return commentDto;
-	}
-
-	private Comment mapEntity(CommentDto commentDto) {
-		Comment comment = new Comment();
-		comment.setId(commentDto.getId());
-		comment.setName(commentDto.getName());
-		comment.setEmail(commentDto.getEmail());
-		comment.setBody(commentDto.getBody());
-
-		return comment;
 	}
 
 	@Override
@@ -85,11 +69,11 @@ public class CommentServiceImpl implements CommentService {
 		if (!comment.getPost().getId().equals(post.getId())) {
 			throw new BlogAppException(HttpStatus.BAD_REQUEST, "The comment doesn't belong to the post");
 		}
-		
+
 		comment.setName(commentRequested.getName());
 		comment.setEmail(commentRequested.getEmail());
 		comment.setBody(commentRequested.getBody());
-		
+
 		Comment updatedComment = commentRepository.save(comment);
 		return mapDto(updatedComment);
 	}
@@ -104,9 +88,19 @@ public class CommentServiceImpl implements CommentService {
 		if (!comment.getPost().getId().equals(post.getId())) {
 			throw new BlogAppException(HttpStatus.BAD_REQUEST, "The comment doesn't belong to the post");
 		}
-		
+
 		commentRepository.delete(comment);
-		
+
+	}
+
+	private CommentDto mapDto(Comment comment) {
+		CommentDto commentDto = modelMapper.map(comment, CommentDto.class);
+		return commentDto;
+	}
+
+	private Comment mapEntity(CommentDto commentDto) {
+		Comment comment = modelMapper.map(commentDto, Comment.class);
+		return comment;
 	}
 
 }

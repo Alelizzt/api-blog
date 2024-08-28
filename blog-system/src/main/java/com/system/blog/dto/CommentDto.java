@@ -1,10 +1,22 @@
 package com.system.blog.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
+
 public class CommentDto {
 
 	private long id;
+	
+	@NotEmpty(message = "The comment name must not be empty or null")
 	private String name;
+	
+	@NotEmpty(message = "The email must not be empty or null")
+	@Email
 	private String email;
+	
+	@NotEmpty(message = "The comment body must not be empty or null")
+	@Size(min = 10, message = "Comment body should be at least 10 characters")
 	private String body;
 
 	public CommentDto() {

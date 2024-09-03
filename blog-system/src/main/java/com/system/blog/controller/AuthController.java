@@ -21,6 +21,8 @@ import com.system.blog.model.BlogUser;
 import com.system.blog.model.Role;
 import com.system.blog.repository.BlogUserRepository;
 import com.system.blog.repository.RoleRepository;
+import com.system.blog.security.JWTAuthResponseDTO;
+import com.system.blog.security.JwtTokenProvider;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,13 +40,19 @@ public class AuthController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
+	@Autowired
+	private JwtTokenProvider jwtTokenProvider;
+	
 	@PostMapping("/login")
-	public ResponseEntity<String> authenticateUser(@RequestBody LoginDto loginDto) {
+	public ResponseEntity<JWTAuthResponseDTO> authenticateUser(@RequestBody LoginDto loginDto) {
 		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsernameOrEmail(), loginDto.getPassword()));
 		
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		
-		return new ResponseEntity<>("Login successful!", HttpStatus.OK);
+		// Get token from jwtTokenProvider
+		String token = jwtTokenProvider.generateToken(authentication);
+		
+		return ResponseEntity.ok(new JWTAuthResponseDTO(token));
 	}
 	
 	@PostMapping("/signup")

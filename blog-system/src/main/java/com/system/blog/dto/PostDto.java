@@ -2,8 +2,6 @@ package com.system.blog.dto;
 
 import java.util.Set;
 
-import com.system.blog.model.Comment;
-
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
@@ -22,7 +20,7 @@ public class PostDto {
 	@NotEmpty
 	private String content;
 
-	private Set<Comment> comments;
+	private Set<CommentDto> comments;
 
 	public PostDto() {
 		super();
@@ -60,11 +58,11 @@ public class PostDto {
 		this.content = content;
 	}
 
-	public Set<Comment> getComments() {
+	public Set<CommentDto> getComments() {
 		return comments;
 	}
 
-	public void setComments(Set<Comment> comments) {
+	public void setComments(Set<CommentDto> comments) {
 		this.comments = comments;
 	}
 

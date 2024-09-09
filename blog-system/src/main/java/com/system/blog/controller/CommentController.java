@@ -17,22 +17,35 @@ import org.springframework.web.bind.annotation.RestController;
 import com.system.blog.dto.CommentDto;
 import com.system.blog.service.CommentService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Comments", description = "Administración de los comentarios en los posts")
 public class CommentController {
 
 	@Autowired
 	private CommentService commentService;
 
 	@GetMapping("/posts/{postId}/comments")
-
+	@Operation(summary = "Obtiene los comentarios de un post según su identificador")
 	public List<CommentDto> getCommentsByPost(@PathVariable(value = "postId") Long postId) {
 		return commentService.getCommentsByPostId(postId);
 	}
 
 	@GetMapping("/posts/{postId}/comments/{commentId}")
+	@Operation(summary = "Obtiene un comentario según su identificador y el del post")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Comentario encontrado",
+					content = @Content(array = @ArraySchema(schema = @Schema(implementation = CommentDto.class))))
+	})
 	public ResponseEntity<CommentDto> getCommentById(@PathVariable(value = "postId") Long postId,
 			@PathVariable(value = "commentId") Long commentId) {
 		CommentDto commentDto = commentService.getCommentById(postId, commentId);
@@ -40,12 +53,16 @@ public class CommentController {
 	}
 
 	@PostMapping("/posts/{postId}/comments")
+	@Operation(summary = "Guarda un comentario según el identificador del post al cual pertenece")
+	@ApiResponse(responseCode = "200", description = "Se registra el nuevo comentario", content = @Content(schema = @Schema(implementation = CommentDto.class)))
 	public ResponseEntity<CommentDto> saveComment(@PathVariable(value = "postId") long postId,
 			@Valid @RequestBody CommentDto commentDto) {
 		return new ResponseEntity<>(commentService.createComment(postId, commentDto), HttpStatus.CREATED);
 	}
 
 	@PutMapping("/posts/{postId}/comments/{commentId}")
+	@Operation(summary = "Actualiza un comentario según el identificador del post al cual pertenece")
+	@ApiResponse(responseCode = "200", description = "Se ha actualizado correctamente el comentario")
 	public ResponseEntity<CommentDto> updateComment(@PathVariable(value = "postId") Long postId,
 			@PathVariable(value = "commentId") Long commentId, @Valid @RequestBody CommentDto commentDto) {
 		CommentDto updatedComment = commentService.updateComment(postId, commentId, commentDto);
@@ -53,6 +70,8 @@ public class CommentController {
 	}
 	
 	@DeleteMapping("/posts/{postId}/comments/{commentId}")
+	@Operation(summary = "Elimina el comentario según el identificador del post al cual pertenece")
+	@ApiResponse(responseCode = "200", description = "Se ha eliminado correctamente el comentario")
 	public ResponseEntity<String> deleteComment(@PathVariable(value = "postId") Long postId,
 			@PathVariable(value = "commentId") Long commentId) {
 		commentService.deleteComment(postId, commentId);

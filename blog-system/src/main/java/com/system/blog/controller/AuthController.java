@@ -24,8 +24,20 @@ import com.system.blog.repository.RoleRepository;
 import com.system.blog.security.JWTAuthResponseDTO;
 import com.system.blog.security.JwtTokenProvider;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+
+/**
+ * Controlador para la autenticación de usuarios del blog
+ */
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Auth", description = "Administración de la autenticación con roles y jwt")
 public class AuthController {
 
 	@Autowired
@@ -43,6 +55,8 @@ public class AuthController {
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
 	
+	@Operation(summary = "Autenticación o login del usuario, genera un token al comprobar la existencia del usuario")
+	@ApiResponse(responseCode = "200", description = "Usuario autenticado y token generado acorde")
 	@PostMapping("/login")
 	public ResponseEntity<JWTAuthResponseDTO> authenticateUser(@RequestBody LoginDto loginDto) {
 		Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsernameOrEmail(), loginDto.getPassword()));
@@ -55,6 +69,11 @@ public class AuthController {
 		return ResponseEntity.ok(new JWTAuthResponseDTO(token));
 	}
 	
+	@Operation(summary = "Registro de usuario en la aplicación")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Se registra el usuario", content = @Content(schema = @Schema(implementation = RegisterDto.class))),
+			@ApiResponse(responseCode = "400", description = "La petición se realizón de forma inadecuada y no pasó las validaciones")
+	})
 	@PostMapping("/signup")
 	public ResponseEntity<?> userSignUp(@RequestBody RegisterDto registerDto) {
 		if(blogUserRepository.existsByUsername(registerDto.getUsername())) {
